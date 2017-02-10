@@ -1,0 +1,42 @@
+Hierarchy
+Algorithm -> (is run on) Schedule -> (is composed of) Slots -> (can contain) Patients
+
+'''
+Structure of the simulator:
+Create all of our patients
+ - Each has an inherent schedule of no-show probabilities.
+ - This schedule must be a numpy array of the same size as the date range we are interested in
+ - Each patient object can be fed a dictionary of attributes/demographics.
+  - Dictionary only used for reference, key/values are not used in scheduling
+ - p.no_show is done by Scott and Co. This assigns a no-show probability to each p/w/d/s
+
+Create a base schedule
+ - This is the schedule that we will be inputting patients into
+ - Must be initialized with the same p/w/d/s values as the patient no-show probabiltiies
+ - Set open slots
+  - Exact format will depend on how the clinic gives us availabilities
+ - Set up to take a list of available p/w/d/s
+ - Remember this is 0-indexed
+
+Initialize the algorithm
+ - The algorithm is inputted our schedule of availabilities
+ - Iterate through patients and assign them
+ - Outputted print statement is 1-indexed for readability
+
+Assess the scheduling
+ - Rudimentary: how many showed, how many didn't?
+ - With more patients, get into how many showed per day, etc.
+
+'''
+
+
+
+02/08/17 Focus on visualization
+Ex. Over 100 wks
+
+        Monday  Tuesday Wednesday   Thursday    Friday
+ Regular  90%     80%      ...       ....         ...
+ OverB    40%      30%    ...          ....       ...
+ Overtime  50m      30m
+
+Try overbooking in the beginning of the day or something
