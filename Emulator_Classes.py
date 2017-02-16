@@ -132,10 +132,13 @@ class Schedule:
             p -= 1
             w -= 1
             d -= 1
-        slots = self.schedule[p, w, d, :]
-        print 'Physician: {0}, Week: {1}, Day: {2}'.format(p, w, d) + '\n'
-        for i in range(len(slots)):
-            print 'Slot: {0}'.format(i+1) + '\t' + slots[i].summary()
+        try:
+            slots = self.schedule[p, w, d, :]
+            print 'Physician: {0}, Week: {1}, Day: {2}'.format(p, w, d) + '\n'
+            for i in range(len(slots)):
+                print 'Slot: {0}'.format(i+1) + '\t' + slots[i].summary()
+        except IndexError:
+            print 'Not in date range'
 
 
 class Slot:
@@ -276,3 +279,37 @@ class PostProcessor:
             return None
         else:
             return overtime
+
+
+def generate_patients(k, mean_appt_len, total_appt_spread, date_range):
+    names = {
+        'Adam': 0,
+        'Barry': 0,
+        'Clark': 0,
+        'Dwayne': 0,
+        'Elon': 0,
+        'Fred': 0,
+        'George': 0,
+        'Harrison': 0,
+        'Ingrid': 0,
+        'Kurt': 0,
+        'Larry': 0}
+
+    patients = []
+
+    for i in range(k):
+        name = random.choice(names.keys())
+        names[name] += 1
+        demographics = {'FName': name + ' ' + str(names[name])}
+        appt_length = (random.random() * total_appt_spread) + mean_appt_len - (0.5*total_appt_spread)
+        print demographics, appt_length
+        patient = Patient(demographics, appt_length)
+        patient.no_show(date_range)
+
+        patients.append(patient)
+
+    return patients
+
+
+
+
