@@ -81,16 +81,23 @@ class Schedule:
         self.schedule = np.empty(shape=(providers, weeks, days, slots), dtype=object)  # Dtype is whatever object our 'patients' are
 
     def assign_patient(self, patient, p, w, d, s):
-        slot = self.schedule[p, w, d, s]
-        if slot == None:
-            print 'That slot is not available!'
-            return
-        else:
-            if slot.assign_patient(patient):
-                print 'Assigned: ', patient.demo['FName'], 'Physician:', p+1, ' Week:', w+1, 'Day:', d+1, 'Slot:', s+1
+        try:
+            slot = self.schedule[p, w, d, s]
+            if slot == None:
+                print 'That slot is not available!'
+                return
             else:
-                print 'No more patients can go in this slot! Desired patient not assigned'
-            return
+                if slot.assign_patient(patient):
+                    print 'Assigned: ', patient.demo[
+                        'FName'], 'Physician:', p + 1, ' Week:', w + 1, 'Day:', d + 1, 'Slot:', s + 1
+                else:
+                    print 'No more patients can go in this slot! Desired patient not assigned'
+                return
+        except IndexError:
+            print 'One of physician, week, day, slot is out of range.'
+            print 'The appropriate range is: '
+            print self.schedule.shape
+
 
     def set_open_slots(self, tup, start=1, max_p=1):
         # This is disgusting
@@ -119,6 +126,16 @@ class Schedule:
 
     def get_range(self):
         return self.schedule.shape
+
+    def day_summary(self, p, w, d, one_index=1):
+        if ~one_index:
+            p -= 1
+            w -= 1
+            d -= 1
+        slots = self.schedule[p, w, d, :]
+        print 'Physician: {0}, Week: {1}, Day: {2}'.format(p, w, d) + '\n'
+        for i in range(len(slots)):
+            print 'Slot: {0}'.format(i+1) + '\t' + slots[i].summary()
 
 
 class Slot:
@@ -176,6 +193,16 @@ class Slot:
 
             return overflow
 
+    def summary(self):
+        if len(self.patients) == 0:
+            return 'No Patient Assigned'
+        else:
+            return_str = ''
+            for p in self.patients:
+                return_str += p.demo['FName'] + "\t" + 'Appt length: ' + str(p.appt_length) + ', \t'
+            return return_str
+
+
 class Patient:
     def __init__(self, demographics, appt):
         self.demo = {}
@@ -203,6 +230,54 @@ class Patient:
 
     def get_noshow(self):
         return self.noshow
+
+
+class PostProcessor:
+    def __init__(self, algorithm):
+        self.algorithm = algorithm
+        self.schedule = algorithm.curr_schedule
+        self.slots = algorithm.curr_schedule.schedule
+        self.date_range = self.schedule.get_range()
+
+    def overtime(self, availabilities):  # Get overtime per day
+        overtime = None
+
+        for avail in availabilities:
+
+            overtime = np.empty(self.date_range[:3])
+
+            p = avail[0]
+            w = avail[1]
+            d = avail[2]
+
+            if type(p) == int:
+                p = [p]
+            if type(w) == int:
+                w = [w]
+            if type(d) == int:
+                d = [d]
+
+            for p_ in p:  # through all providers
+                # print 'Provider'
+                for w_ in w:
+                    for d_ in d:
+                        day = self.slots[p_, w_, d_, :]
+
+                        over = 0
+                        for slot in day:
+                            # print slot
+                            over = slot.get_req_time(predict_noshow=0, overflow=over)
+                            # print over
+
+                        overtime[p_, w_, d_] = over
+
+        if overtime is None:
+            print 'No Availabilties inputted!'
+            return None
+        else:
+            return overtime
+
+
 
 
 

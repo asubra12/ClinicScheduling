@@ -42,31 +42,5 @@ t.input(s)
 for patient in patients:
     t.schedule(patient)
 
-for avail in availabilities:
-
-    overtime = np.zeros(date_range[:3])
-
-    p = avail[0]
-    w = avail[1]
-    d = avail[2]
-
-    if type(p) == int:
-        p = [p]
-    if type(w) == int:
-        w = [w]
-    if type(d) == int:
-        d = [d]
-
-    for p_ in p:  # through all providers
-        print 'Provider'
-        for w_ in w:
-            for d_ in d:
-                day = s.schedule[p_, w_, d_, :]
-
-                over = 0
-                for slot in day:
-                    print slot
-                    over = slot.get_req_time(predict_noshow=0, overflow=over)
-                    print over
-
-                overtime[p_, w_, d_] = over
+p = ec.PostProcessor(t)
+overtime = p.overtime(availabilities)
