@@ -3,7 +3,7 @@ reload(ec)
 import random
 import numpy as np
 
-date_range = (2, 10, 5, 8)  # providers, weeks, days, slots
+date_range = (2, 1, 1, 8)  # providers, weeks, days, slots
 
 demographics = {'FName': 'Barry', 'LName': 'Allen', 'Age': 25, 'Location': 'Central City'}  # Type of physician, LOS
 appt_length = (random.random() * 20) + 50  # Appt length centered on 60 minutes, uniform distribution 10 mins
