@@ -57,6 +57,17 @@ class TestAlgorithm(Algorithm):
                 return p, w, d, s, noshow
 
             if self.curr_schedule.schedule[p, w, d, s].can_assign():
+                # If the day hasn't reached minimum expected revenue:
+                    # day = self.curr_schedule.schedule[p, w, d, :]
+                    # revenue = 0
+                    # for slot in day:
+                        # revenue += slot.revenue_from_slot
+                    # If revenue < min_expected:
+                        # Assign patient to slot
+                # If day has already reached min revenue:
+                    # probabilities[p, w, d, w] = 1e99
+                    # pass
+
                 scheduled = True
                 return p, w, d, s, noshow
             else:
@@ -78,13 +89,13 @@ class Schedule:
         self.schedule = None
 
     def initialize(self, providers, weeks, days, slots):
-        self.schedule = np.empty(shape=(providers, weeks, days, slots), dtype=object)  # Dtype is whatever object our 'patients' are
+        self.schedule = np.empty(shape=(providers, weeks, days, slots), dtype=Slot)  # Dtype is whatever object our 'patients' are
 
     def assign_patient(self, patient, p, w, d, s):
         try:
             slot = self.schedule[p, w, d, s]
             if slot == None:
-                print 'That slot is not available!'
+                # print 'That slot is not available!'
                 return
             else:
                 if slot.assign_patient(patient):
@@ -100,7 +111,6 @@ class Schedule:
 
 
     def set_open_slots(self, tup, start=1, max_p=1):
-        # This is disgusting
 
         p = tup[0]
         w = tup[1]
@@ -242,40 +252,27 @@ class PostProcessor:
         self.slots = algorithm.curr_schedule.schedule
         self.date_range = self.schedule.get_range()
 
-    def overtime(self, availabilities):  # Get overtime per day
-        overtime = None
+    def overtime(self):  # Get overtime per day
+        overtime = np.empty(self.date_range[:3])
 
-        for avail in availabilities:
+        p = self.date_range[0]
+        w = self.date_range[1]
+        d = self.date_range[2]
 
-            overtime = np.empty(self.date_range[:3])
+        for p_ in range(p):  # through all providers
+            for w_ in range(w):
+                for d_ in range(d):
+                    day = self.slots[p_, w_, d_, :]
 
-            p = avail[0]
-            w = avail[1]
-            d = avail[2]
+                    over = 0
+                    for slot in day:
+                        # print slot
+                        over = slot.get_req_time(predict_noshow=0, overflow=over)
+                        # print over
 
-            if type(p) == int:
-                p = [p]
-            if type(w) == int:
-                w = [w]
-            if type(d) == int:
-                d = [d]
-
-            for p_ in p:  # through all providers
-                # print 'Provider'
-                for w_ in w:
-                    for d_ in d:
-                        day = self.slots[p_, w_, d_, :]
-
-                        over = 0
-                        for slot in day:
-                            # print slot
-                            over = slot.get_req_time(predict_noshow=0, overflow=over)
-                            # print over
-
-                        overtime[p_, w_, d_] = over
+                    overtime[p_, w_, d_] = over
 
         if overtime is None:
-            print 'No Availabilties inputted!'
             return None
         else:
             return overtime
@@ -302,7 +299,6 @@ def generate_patients(k, mean_appt_len, total_appt_spread, date_range):
         names[name] += 1
         demographics = {'FName': name + ' ' + str(names[name])}
         appt_length = (random.random() * total_appt_spread) + mean_appt_len - (0.5*total_appt_spread)
-        print demographics, appt_length
         patient = Patient(demographics, appt_length)
         patient.no_show(date_range)
 

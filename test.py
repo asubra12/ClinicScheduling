@@ -12,7 +12,7 @@ s.initialize(date_range[0], date_range[1], date_range[2], date_range[3])
 availabilities = [(0, 0, 0, list(range(8))), (1, 0, 0, list(range(8)))]  # Both providers, week 1, day 1, all slots
 
 for availability in availabilities:
-    s.set_open_slots(availability, start=1, max_p=1)  # Start = Can we start an app? max_p = max p per physician
+    s.set_open_slots(availability, start=1, max_p=2)  # Start = Can we start an app? max_p = max p per physician
 
 
 t = ec.TestAlgorithm()
@@ -22,4 +22,4 @@ for patient in patients:
     t.schedule(patient)
 
 p = ec.PostProcessor(t)
-overtime = p.overtime(availabilities)
+overtime = p.overtime()
