@@ -3,6 +3,7 @@ import numpy as np
 import random
 import math
 from Emulator_Classes import *
+import matplotlib.pyplot as plt
 
 class PostProcessor:
     def __init__(self, algorithm):
@@ -25,9 +26,7 @@ class PostProcessor:
 
                     over = 0
                     for slot in day:
-                        # print slot
                         over = slot.get_req_time(predict_noshow=0, overflow=over)
-                        # print over
 
                     overtime[p_, w_, d_] = over
 
@@ -35,6 +34,14 @@ class PostProcessor:
             return None
         else:
             return overtime
+
+    def plot_week(self, p, w):
+        overtime = self.overtime()
+        overtime = overtime[p, w, :]
+        plt.plot([1, 2, 3, 4, 5], overtime)
+        plt.xlabel('Day of the Week')
+        plt.ylabel('Overtime')
+
 
 
 def generate_patients(k, mean_appt_len, total_appt_spread, date_range):
