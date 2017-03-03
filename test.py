@@ -5,7 +5,7 @@ reload(ec2)
 import random
 import numpy as np
 
-date_range = (2, 1, 5, 8)  # providers, weeks, days, slots
+date_range = (2, 12, 5, 8)  # providers, weeks, days, slots
 
 patients = ec2.generate_patients(20, 60, 20, date_range)
 

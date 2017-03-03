@@ -4,6 +4,7 @@ import random
 import math
 from Emulator_Classes import *
 import matplotlib.pyplot as plt
+import pandas as pd
 
 class PostProcessor:
     def __init__(self, algorithm):
